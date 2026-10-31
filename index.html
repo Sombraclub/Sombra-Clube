@@ -3,7 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>SOMBRA CLUB – Vista sua atitude</title>
+<title>SOMBRA CLUB – Camisetas oversized em preto e branco</title>
+<meta name="description" content="Camisetas oversized em preto e branco com estampas exclusivas. Frete grátis acima de R$ 150,00. Compre pelo WhatsApp.">
+<meta property="og:title" content="SOMBRA CLUB – Camisetas oversized em preto e branco">
+<meta property="og:description" content="Camisetas oversized em preto e branco com estampas exclusivas. Compre pelo WhatsApp.">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap">
 <style>
 :root{
@@ -212,6 +215,20 @@ dialog .wrapd{position:relative}
 .rel-card b{font-size:12px;color:var(--verde)}
 @media (max-width:760px){.destaque{grid-template-columns:1fr;padding-top:40px}.rel-grid{grid-template-columns:repeat(2,1fr)}.faixa-frete{font-size:12px}}
 
+/* MELHORIAS DE VITRINE E COMPRA */
+.ativos{display:flex;gap:8px;flex-wrap:wrap;margin:-8px 0 18px}
+.ativos:empty{display:none}
+.ativo{background:var(--surf);border:1px solid var(--roxo);color:#fff;border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.vazio-lanc{grid-column:1/-1;text-align:center;color:var(--mute);padding:40px 0;margin:0}
+.link-b{background:none;border:0;color:var(--roxo);text-decoration:underline;cursor:pointer;font-size:15px}
+.chips button small{opacity:.7}
+.dest-preco{margin:0 0 18px;font-size:18px;color:#fff}
+.dest-preco .num{color:var(--verde);font-weight:700}
+.dest-acoes{display:flex;gap:12px;flex-wrap:wrap}
+.buy-dest{height:44px;padding:0 24px;border-radius:999px;border:0;background:var(--verde);color:#fff;font-weight:600;font-size:15px;cursor:pointer}
+.qual{background:none;border:0;color:var(--roxo);text-decoration:underline;cursor:pointer;font-size:13px;align-self:flex-start;padding:0}
+.selo-troca{display:inline-block;align-self:flex-start;font-size:12px;color:#fff;border:1px solid var(--verde);border-radius:999px;padding:4px 10px;font-weight:600}
+
 /* RODAPÉ */
 .colunas{display:grid;grid-template-columns:1.2fr 1fr 1fr 1.4fr;gap:28px}
 .colunas h4{margin:0 0 10px;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#fff}
@@ -348,7 +365,8 @@ dialog .wrapd{position:relative}
       <span class="kicker">Coleção em destaque</span>
       <h2 class="grafite">Faith</h2>
       <p>Leão, cruz e uma mensagem forte. Modelagem oversized, em preto e branco.</p>
-      <a class="btn btn-roxo" href="#faith">Comprar a coleção</a>
+      <p class="dest-preco">R$ <b class="num">59,90</b> · ou 3x de R$ 19,97</p>
+      <div class="dest-acoes"><a class="btn btn-line" href="#faith">Ver peças</a><button type="button" class="buy-dest" data-buy="faith">Comprar</button></div>
     </div>
   </section>
 
@@ -388,7 +406,9 @@ dialog .wrapd{position:relative}
       </div></div>
       <button type="button" class="limpar" id="limpar-filtros">Limpar tudo</button>
     </div>
+    <div class="ativos" id="ativos"></div>
     <div class="grid" data-ids="faith,mustang,keepgoing,dreambig,godfirst,naruto,gtr,gtr34,anjocorr,anjoest,arcanjo"></div>
+    <p class="vazio-lanc" id="vazio-lanc" hidden>Nenhuma peça encontrada com esses filtros. <button type="button" class="link-b" id="vazio-limpar">Limpar filtros</button></p>
   </section>
 
   <section class="sec wrap" id="faith">
@@ -499,8 +519,10 @@ dialog .wrapd{position:relative}
       <p class="caimento"><b>Caimento oversized:</b> modelagem larga, com ombro caído e mangas mais largas.</p>
       <div><span class="rotulo">Cor: <b id="m-cor" style="color:#fff;font-weight:500"></b></span><div class="swatches" id="m-cores" role="group" aria-label="Escolher cor"></div></div>
       <div><span class="rotulo">Tamanho</span><div class="sizes" id="m-tams" role="group" aria-label="Escolher tamanho"></div></div>
+      <button type="button" class="qual" id="m-qual">Qual tamanho escolher?</button>
       <p class="msg" id="m-msg" aria-live="polite"></p>
       <p class="estq" id="m-estq" hidden></p>
+      <span class="selo-troca">✓ Troca fácil</span>
       <div class="acao-sticky">
         <div class="linha">
         <div class="qty"><button type="button" id="m-menos" aria-label="Diminuir">−</button><output id="m-qtd">1</output><button type="button" id="m-mais" aria-label="Aumentar">+</button></div>
@@ -752,7 +774,7 @@ $('#m-add').onclick = function(){
   var v = M.p.vars[M.cor], key = M.p.id+'|'+v.cor+'|'+M.tam;
   var item = carrinho.find(function(i){return i.key===key});
   if(item) item.qtd += M.qtd;
-  else carrinho.push({key:key, nome:M.p.nome, cor:v.cor, tam:M.tam, qtd:M.qtd, img:v.img});
+  else carrinho.push({key:key, id:M.p.id, nome:M.p.nome, cor:v.cor, tam:M.tam, qtd:M.qtd, img:v.img});
   fechaModal(); atualizaCarrinho(); abreCarrinho();
 };
 $('#fechar-modal').onclick = fechaModal;
@@ -800,7 +822,7 @@ $('#finalizar').onclick = function(){
   if(!carrinho.length) return;
   var cents = 0, linhas = carrinho.map(function(it){
     cents += it.qtd*PRECO_C;
-    return '• '+it.nome+' ('+it.cor+', '+it.tam+') x'+it.qtd+' - '+fmt(it.qtd*PRECO_C);
+    return '• '+it.nome+' ('+it.cor+', '+it.tam+') x'+it.qtd+' - '+fmt(it.qtd*PRECO_C)+'\n   '+location.href.split('#')[0]+'#'+it.id;
   });
   var texto = 'Olá! Quero finalizar meu pedido na SOMBRA CLUB:\n' + linhas.join('\n') + '\n\nSubtotal: ' + fmt(cents) + '\nFrete: ' + (cents >= FRETE_GRATIS_ACIMA ? 'grátis' : 'a combinar');
   window.open(WA + '?text=' + encodeURIComponent(texto), '_blank', 'noopener');
@@ -856,7 +878,57 @@ function aplicaTudo(){
     }
   });
   arr.forEach(function(c){ grid.appendChild(c); });
+  atualizaContagens(); atualizaAtivos(); atualizaVazio();
 }
+function passa(c, F){
+  return (F.col==='all' || c.getAttribute('data-col')===F.col) &&
+         (F.cor==='all' || (c.getAttribute('data-cores')||'').split(',').indexOf(F.cor)!==-1) &&
+         (F.tam==='all' || (c.getAttribute('data-tams')||'').split(',').indexOf(F.tam)!==-1) &&
+         passaPreco(c, F.preco);
+}
+function contaCom(f, v){
+  var F = Object.assign({}, FILTRO); F[f] = v;
+  return $$('#lancamentos .card').filter(function(c){
+    return passa(c, F) && (!BUSCA || c.getAttribute('data-name').indexOf(BUSCA) !== -1);
+  }).length;
+}
+function atualizaContagens(){
+  $$('.filtros .chips').forEach(function(g){
+    var f = g.getAttribute('data-f');
+    if(f === 'ord') return;
+    g.querySelectorAll('button').forEach(function(b){
+      b.innerHTML = b.getAttribute('data-label') + ' <small>(' + contaCom(f, b.getAttribute('data-v')) + ')</small>';
+    });
+  });
+}
+function atualizaAtivos(){
+  var box = $('#ativos'), html = '', nomes = {col:'Coleção', cor:'Cor', tam:'Tamanho', preco:'Preço'};
+  ['col','cor','tam','preco'].forEach(function(f){
+    if(FILTRO[f] !== 'all'){
+      var b = document.querySelector('.filtros .chips[data-f="'+f+'"] [data-v="'+FILTRO[f]+'"]');
+      html += '<button type="button" class="ativo" data-rem="'+f+'" aria-label="Remover filtro '+nomes[f]+'">'+nomes[f]+': '+(b ? b.getAttribute('data-label') : FILTRO[f])+' ×</button>';
+    }
+  });
+  if(BUSCA) html += '<button type="button" class="ativo" data-rem="busca" aria-label="Remover busca">Busca: '+esc(BUSCA)+' ×</button>';
+  box.innerHTML = html;
+}
+function atualizaVazio(){
+  var vis = $$('#lancamentos .card').filter(function(c){ return !c.hidden; }).length;
+  $('#vazio-lanc').hidden = vis > 0;
+}
+$('#ativos').onclick = function(e){
+  var b = e.target.closest('[data-rem]'); if(!b) return;
+  var f = b.getAttribute('data-rem');
+  if(f === 'busca'){ BUSCA = ''; $('#busca').value = ''; $('#busca-topo').value = ''; }
+  else {
+    FILTRO[f] = 'all';
+    var g = document.querySelector('.filtros .chips[data-f="'+f+'"]');
+    if(g) g.querySelectorAll('button').forEach(function(x){ x.setAttribute('aria-pressed', String(x.getAttribute('data-v') === 'all')); });
+  }
+  aplicaTudo();
+};
+$('#vazio-limpar').onclick = function(){ $('#limpar-filtros').click(); };
+$('#m-qual').onclick = function(){ document.getElementById('tabela-dlg').showModal(); };
 $$('.filtros .chips').forEach(function(g){
   var f = g.getAttribute('data-f');
   g.querySelectorAll('button').forEach(function(b){
@@ -882,7 +954,7 @@ function addCarrinho(p, corIdx, tam, qtd){
   var v = p.vars[corIdx], key = p.id+'|'+v.cor+'|'+tam;
   var item = carrinho.find(function(i){return i.key===key});
   if(item) item.qtd += qtd;
-  else carrinho.push({key:key, nome:p.nome, cor:v.cor, tam:tam, qtd:qtd, img:v.img});
+  else carrinho.push({key:key, id:p.id, nome:p.nome, cor:v.cor, tam:tam, qtd:qtd, img:v.img});
   atualizaCarrinho(); abreCarrinho();
 }
 
@@ -919,6 +991,8 @@ $('#form-news').onsubmit = function(e){
 
 renderGrids();
 $('#dest-img').src = porId('faith').vars[0].img;
+$$('.filtros .chips button').forEach(function(b){ b.setAttribute('data-label', b.textContent); });
+aplicaTudo();
 atualizaCarrinho();
 onScroll();
 </script>
